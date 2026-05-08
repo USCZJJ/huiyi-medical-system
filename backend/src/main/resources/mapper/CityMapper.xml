@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.CityMapper">
+    <sql id="whereSql">
+        WHERE deleted = 0
+        <if test="query.cityName != null and query.cityName != ''">AND city_name LIKE CONCAT('%', #{query.cityName}, '%')</if>
+        <if test="query.province != null and query.province != ''">AND province = #{query.province}</if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.City">
+        SELECT id, city_name, province, code, created_at, updated_at, deleted FROM dbo.city
+        <include refid="whereSql"/> ORDER BY id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">SELECT COUNT(1) FROM dbo.city <include refid="whereSql"/></select>
+    <select id="findById" resultType="com.huiyi.medical.entity.City">
+        SELECT id, city_name, province, code, created_at, updated_at, deleted FROM dbo.city WHERE id=#{id} AND deleted=0
+    </select>
+    <select id="findByCode" resultType="com.huiyi.medical.entity.City">
+        SELECT id, city_name, province, code, created_at, updated_at, deleted FROM dbo.city WHERE code=#{code} AND deleted=0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.city(city_name, province, code) VALUES(#{cityName}, #{province}, #{code})
+    </insert>
+    <update id="update">UPDATE dbo.city SET city_name=#{cityName}, province=#{province}, code=#{code}, updated_at=SYSDATETIME() WHERE id=#{id} AND deleted=0</update>
+    <update id="logicalDelete">UPDATE dbo.city SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="activeCount" resultType="long">SELECT COUNT(1) FROM dbo.city WHERE deleted = 0</select>
+</mapper>
+

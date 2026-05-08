@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: medical-backend
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=HuiYiMedicalDB;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: 123456
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.huiyi.medical.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  # 生产环境请替换为更长、更随机的密钥，并通过环境变量注入。
+  secret: huiyi-medical-change-this-secret-key-please
+  expiration: 86400000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+

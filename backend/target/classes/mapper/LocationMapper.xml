@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.LocationMapper">
+    <sql id="whereSql">
+        WHERE deleted = 0
+        <if test="query.locationName != null and query.locationName != ''">AND location_name LIKE CONCAT('%', #{query.locationName}, '%')</if>
+        <if test="query.city != null and query.city != ''">AND city = #{query.city}</if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.Location">
+        SELECT id, location_name, city, address, contact, phone, longitude, latitude, created_at, updated_at, deleted FROM dbo.[location]
+        <include refid="whereSql"/> ORDER BY id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">SELECT COUNT(1) FROM dbo.[location] <include refid="whereSql"/></select>
+    <select id="findById" resultType="com.huiyi.medical.entity.Location">
+        SELECT id, location_name, city, address, contact, phone, longitude, latitude, created_at, updated_at, deleted FROM dbo.[location] WHERE id=#{id} AND deleted=0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.[location](location_name, city, address, contact, phone, longitude, latitude) VALUES(#{locationName}, #{city}, #{address}, #{contact}, #{phone}, #{longitude}, #{latitude})
+    </insert>
+    <update id="update">UPDATE dbo.[location] SET location_name=#{locationName}, city=#{city}, address=#{address}, contact=#{contact}, phone=#{phone}, longitude=#{longitude}, latitude=#{latitude}, updated_at=SYSDATETIME() WHERE id=#{id} AND deleted=0</update>
+    <update id="logicalDelete">UPDATE dbo.[location] SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="activeCount" resultType="long">SELECT COUNT(1) FROM dbo.[location] WHERE deleted = 0</select>
+</mapper>
+

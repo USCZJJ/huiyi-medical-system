@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.MaterialMapper">
+    <sql id="whereSql">
+        WHERE deleted = 0
+        <if test="query.materialName != null and query.materialName != ''">AND material_name LIKE CONCAT('%', #{query.materialName}, '%')</if>
+        <if test="query.type != null and query.type != ''">AND type = #{query.type}</if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.Material">
+        SELECT id, material_name, type, description, created_at, updated_at, deleted FROM dbo.material
+        <include refid="whereSql"/> ORDER BY id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">SELECT COUNT(1) FROM dbo.material <include refid="whereSql"/></select>
+    <select id="findById" resultType="com.huiyi.medical.entity.Material">
+        SELECT id, material_name, type, description, created_at, updated_at, deleted FROM dbo.material WHERE id=#{id} AND deleted=0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.material(material_name, type, description) VALUES(#{materialName}, #{type}, #{description})
+    </insert>
+    <update id="update">UPDATE dbo.material SET material_name=#{materialName}, type=#{type}, description=#{description}, updated_at=SYSDATETIME() WHERE id=#{id} AND deleted=0</update>
+    <update id="logicalDelete">UPDATE dbo.material SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="activeCount" resultType="long">SELECT COUNT(1) FROM dbo.material WHERE deleted = 0</select>
+</mapper>
+

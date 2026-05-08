@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.CompanyMapper">
+    <sql id="whereSql">
+        WHERE deleted = 0
+        <if test="query.companyName != null and query.companyName != ''">
+            AND company_name LIKE CONCAT('%', #{query.companyName}, '%')
+        </if>
+        <if test="query.city != null and query.city != ''">
+            AND city = #{query.city}
+        </if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.Company">
+        SELECT id, company_name, contact, phone, city, address, created_at, updated_at, deleted
+        FROM dbo.company
+        <include refid="whereSql"/>
+        ORDER BY id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">SELECT COUNT(1) FROM dbo.company <include refid="whereSql"/></select>
+    <select id="findById" resultType="com.huiyi.medical.entity.Company">
+        SELECT id, company_name, contact, phone, city, address, created_at, updated_at, deleted FROM dbo.company WHERE id = #{id} AND deleted = 0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.company(company_name, contact, phone, city, address) VALUES(#{companyName}, #{contact}, #{phone}, #{city}, #{address})
+    </insert>
+    <update id="update">
+        UPDATE dbo.company SET company_name=#{companyName}, contact=#{contact}, phone=#{phone}, city=#{city}, address=#{address}, updated_at=SYSDATETIME() WHERE id=#{id} AND deleted=0
+    </update>
+    <update id="logicalDelete">UPDATE dbo.company SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="activeCount" resultType="long">SELECT COUNT(1) FROM dbo.company WHERE deleted = 0</select>
+</mapper>
+

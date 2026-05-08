@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.PolicyMapper">
+    <sql id="selectSql">
+        SELECT p.id, p.policy_name, p.company_id, c.company_name, p.effective_date, p.expiry_date, p.content, p.created_at, p.updated_at, p.deleted
+        FROM dbo.policy p
+        LEFT JOIN dbo.company c ON p.company_id = c.id
+    </sql>
+    <sql id="whereSql">
+        WHERE p.deleted = 0
+        <if test="query.policyName != null and query.policyName != ''">AND p.policy_name LIKE CONCAT('%', #{query.policyName}, '%')</if>
+        <if test="query.companyId != null">AND p.company_id = #{query.companyId}</if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.Policy">
+        <include refid="selectSql"/> <include refid="whereSql"/>
+        ORDER BY p.id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(1) FROM dbo.policy p <include refid="whereSql"/>
+    </select>
+    <select id="findById" resultType="com.huiyi.medical.entity.Policy">
+        <include refid="selectSql"/> WHERE p.id=#{id} AND p.deleted=0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.policy(policy_name, company_id, effective_date, expiry_date, content)
+        VALUES(#{policyName}, #{companyId}, #{effectiveDate}, #{expiryDate}, #{content})
+    </insert>
+    <update id="update">
+        UPDATE dbo.policy SET policy_name=#{policyName}, company_id=#{companyId}, effective_date=#{effectiveDate}, expiry_date=#{expiryDate}, content=#{content}, updated_at=SYSDATETIME()
+        WHERE id=#{id} AND deleted=0
+    </update>
+    <update id="logicalDelete">UPDATE dbo.policy SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="findLatest" resultType="com.huiyi.medical.entity.Policy">
+        SELECT TOP (${limit}) p.id, p.policy_name, p.company_id, c.company_name, p.effective_date, p.expiry_date, p.content, p.created_at, p.updated_at, p.deleted
+        FROM dbo.policy p LEFT JOIN dbo.company c ON p.company_id = c.id
+        WHERE p.deleted = 0
+        ORDER BY p.effective_date DESC, p.id DESC
+    </select>
+</mapper>
+

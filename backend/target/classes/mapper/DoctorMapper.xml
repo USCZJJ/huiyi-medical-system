@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huiyi.medical.mapper.DoctorMapper">
+    <sql id="whereSql">
+        WHERE deleted = 0
+        <if test="query.doctorName != null and query.doctorName != ''">AND doctor_name LIKE CONCAT('%', #{query.doctorName}, '%')</if>
+        <if test="query.department != null and query.department != ''">AND department = #{query.department}</if>
+        <if test="query.title != null and query.title != ''">AND title = #{query.title}</if>
+    </sql>
+    <select id="findPage" resultType="com.huiyi.medical.entity.Doctor">
+        SELECT id, doctor_name, department, title, phone, email, created_at, updated_at, deleted FROM dbo.doctor
+        <include refid="whereSql"/> ORDER BY id DESC OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+    <select id="count" resultType="long">SELECT COUNT(1) FROM dbo.doctor <include refid="whereSql"/></select>
+    <select id="findById" resultType="com.huiyi.medical.entity.Doctor">
+        SELECT id, doctor_name, department, title, phone, email, created_at, updated_at, deleted FROM dbo.doctor WHERE id=#{id} AND deleted=0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dbo.doctor(doctor_name, department, title, phone, email) VALUES(#{doctorName}, #{department}, #{title}, #{phone}, #{email})
+    </insert>
+    <update id="update">UPDATE dbo.doctor SET doctor_name=#{doctorName}, department=#{department}, title=#{title}, phone=#{phone}, email=#{email}, updated_at=SYSDATETIME() WHERE id=#{id} AND deleted=0</update>
+    <update id="logicalDelete">UPDATE dbo.doctor SET deleted=1, updated_at=SYSDATETIME() WHERE id=#{id}</update>
+    <select id="activeCount" resultType="long">SELECT COUNT(1) FROM dbo.doctor WHERE deleted = 0</select>
+    <select id="countByTitle" resultType="com.huiyi.medical.vo.DistributionVO">
+        SELECT title AS name, title, COUNT(1) AS value, COUNT(1) AS count FROM dbo.doctor WHERE deleted = 0 GROUP BY title ORDER BY COUNT(1) DESC
+    </select>
+    <select id="countByDepartment" resultType="com.huiyi.medical.vo.DistributionVO">
+        SELECT department AS name, department, COUNT(1) AS value, COUNT(1) AS count FROM dbo.doctor WHERE deleted = 0 GROUP BY department ORDER BY COUNT(1) DESC
+    </select>
+</mapper>
+
