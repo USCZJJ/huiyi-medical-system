@@ -1,4 +1,4 @@
-# huiyi-medical-system
+# 慧医医疗管理系统
 
 本项目包含 Vue 3 前端和 Spring Boot + MyBatis 后端，数据库使用 SQL Server 2022。前端通过 `/api` 代理访问后端，业务数据统一保存到 SQL Server 数据库。
 
